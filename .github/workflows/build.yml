@@ -1,0 +1,67 @@
+# Builds the RelayTimer ESP32-C3 firmware.
+# - Every push and pull request: the .bin files are attached to the run as
+#   an artifact.
+# - Pushes to main also refresh the "latest" release, so the newest .bin
+#   always has the same download link.
+name: Build firmware
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write  # needed to publish the release
+
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    env:
+      ESP32_CORE: "3.0.7"
+      ARDUINOJSON: "7.2.1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 core and libraries
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install "esp32:esp32@${ESP32_CORE}"
+          arduino-cli lib install "ArduinoJson@${ARDUINOJSON}"
+
+      - name: Check the embedded web app is up to date
+        run: |
+          python3 tools/embed_html.py
+          git diff --exit-code -- RelayTimer/index_html.h
+
+      - name: Build
+        run: tools/build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RelayTimer-esp32c3
+          path: dist/*.bin
+
+      - name: Publish the latest release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n 's/^#define FW_VERSION "\(.*\)"/\1/p' RelayTimer/RelayTimer.ino)
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest dist/*.bin \
+            --latest --target "$GITHUB_SHA" \
+            --title "RelayTimer firmware ${VERSION}" \
+            --notes "ESP32-C3 firmware built from ${GITHUB_SHA::7}.
+
+          **Flash RelayTimer-esp32c3-full.bin at address 0x0** (it contains the bootloader, partition table and app):
+
+          - Browser (Chrome/Edge): open https://espressif.github.io/esptool-js/, Connect, set Flash Address 0x0, choose the file, Program.
+          - Command line: \`esptool.py --chip esp32c3 write_flash 0x0 RelayTimer-esp32c3-full.bin\`
+
+          Then join the Wi-Fi network RelayTimer-XXXX (password relay1234) from your phone. Set the relay GPIOs under Settings > Hardware.
+
+          RelayTimer-esp32c3-app.bin is the app alone (address 0x10000), for updating a board that already runs RelayTimer."

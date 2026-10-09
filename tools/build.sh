@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the RelayTimer firmware with arduino-cli and collect the .bin files
-# in esp32-relay-timer/dist/.  Needs arduino-cli with the esp32 core and
-# ArduinoJson installed (see .github/workflows/relaytimer.yml).
+# in dist/.  Needs arduino-cli with the esp32 core and
+# ArduinoJson installed (see .github/workflows/build.yml).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")/.." && pwd)"

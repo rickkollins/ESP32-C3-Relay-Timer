@@ -39,10 +39,10 @@ router.
 ## Flash the ready-made firmware (easiest)
 
 No Arduino IDE needed. GitHub builds the firmware on every change and
-publishes it as the **relaytimer-latest** release of this repository.
+publishes it as the **latest** release of this repository.
 
 1. Download **RelayTimer-esp32c3-full.bin** from the
-   [relaytimer-latest release](https://github.com/rickkollins/IP-Scanner/releases/tag/relaytimer-latest).
+   [latest release](https://github.com/rickkollins/ESP32-C3-Relay-Timer/releases/tag/latest).
 2. Plug the board in by USB.
 3. Flash it at address **0x0**, either:
    - **In the browser** (Chrome or Edge on a computer): open
