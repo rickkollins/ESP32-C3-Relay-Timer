@@ -22,11 +22,13 @@
 #include <ArduinoJson.h>
 #include <vector>
 #include <algorithm>
+#include <stdarg.h>
+#include <esp_system.h>
 #include <time.h>
 #include <sys/time.h>
 #include "index_html.h"
 
-#define FW_VERSION "1.1.0"
+#define FW_VERSION "1.1.1"
 
 // ---------------------------------------------------------------- config ---
 // Defaults only: the relay GPIOs and polarity can be changed in the app under
@@ -39,6 +41,9 @@ static const char *AP_SSID_PREFIX = "RelayTimer-";
 static const char *AP_DEFAULT_PASS = "relay1234";  // min. 8 characters
 static const char *MDNS_NAME = "relaytimer";
 static const char *DEFAULT_TZ = "EST5EDT,M3.2.0,M11.1.0";
+// Many ESP32-C3 boards have a poorly matched antenna and their hotspot is
+// invisible at full power; 8.5 dBm is the usual fix and covers a house.
+static const wifi_power_t WIFI_TX_POWER = WIFI_POWER_8_5dBm;
 
 // ----------------------------------------------------------------- model ---
 static const uint8_t NUM_RELAYS = 2;
@@ -63,6 +68,36 @@ static bool activeHigh = DEFAULT_ACTIVE_HIGH;
 static WebServer server(80);
 static DNSServer dns;
 static Preferences prefs;
+
+// --------------------------------------------------------------- logging ---
+// Log to the USB port and, when USB CDC is the main Serial, to UART0 too
+// (boards with a USB-to-serial chip only show UART0).
+static bool uartLog = false;
+
+static void logf(const char *fmt, ...) {
+  char buf[256];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  Serial.print(buf);
+#if ARDUINO_USB_CDC_ON_BOOT
+  if (uartLog) Serial0.print(buf);
+#endif
+}
+
+static const char *resetReason() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON: return "power on";
+    case ESP_RST_SW: return "software restart";
+    case ESP_RST_PANIC: return "crash";
+    case ESP_RST_INT_WDT: case ESP_RST_TASK_WDT: case ESP_RST_WDT: return "watchdog";
+    case ESP_RST_BROWNOUT: return "brownout (power supply too weak)";
+    case ESP_RST_DEEPSLEEP: return "deep sleep";
+    case ESP_RST_EXT: return "reset pin";
+    default: return "other";
+  }
+}
 
 // ----------------------------------------------------------- persistence ---
 // GPIOs that may drive a relay on an ESP32-C3: 11-17 belong to the flash on
@@ -130,7 +165,7 @@ static void loadAll() {
         f.close();
       }
   } else {
-    Serial.println("LittleFS failed: check the partition scheme; schedule won't persist");
+    logf("LittleFS failed: check the partition scheme; schedule won't persist\n");
   }
 
   prefs.begin("relaytimer", true);
@@ -184,6 +219,12 @@ static void writeRelay(uint8_t r, bool on) {
 }
 
 static void initRelayPins() {
+#if ARDUINO_USB_CDC_ON_BOOT
+  if (uartLog && (relayPins[0] >= 20 || relayPins[1] >= 20)) {  // relay took a UART pin
+    Serial0.end();
+    uartLog = false;
+  }
+#endif
   for (uint8_t r = 0; r < NUM_RELAYS; r++) {
     pinMode(relayPins[r], OUTPUT);
     writeRelay(r, relayOn[r]);
@@ -427,7 +468,11 @@ static void handlePostSettings() {
   prefs.end();
   handleGetSettings();
   if (reconnect) connectStation();
-  if (restartAp) { delay(300); WiFi.softAP(apSsid.c_str(), apPass.c_str()); }
+  if (restartAp) {
+    delay(300);
+    WiFi.softAP(apSsid.c_str(), apPass.c_str());
+    WiFi.setTxPower(WIFI_TX_POWER);
+  }
   updateRelays();
 }
 
@@ -462,6 +507,15 @@ static void handleNotFound() {
 void setup() {
   Serial.begin(115200);
   loadAll();
+#if ARDUINO_USB_CDC_ON_BOOT
+  if (relayPins[0] < 20 && relayPins[1] < 20) {  // UART0 uses GPIO 20/21
+    Serial0.begin(115200);
+    uartLog = true;
+  }
+#endif
+  delay(300);
+  logf("\nRelayTimer " FW_VERSION " starting, last reset: %s\n", resetReason());
+  logf("Relays on GPIO %u and %u, active %s\n", (unsigned)relayPins[0], (unsigned)relayPins[1], activeHigh ? "HIGH" : "LOW");
   initRelayPins();  // all relays start off
   if (STATUS_LED_PIN >= 0) pinMode(STATUS_LED_PIN, OUTPUT);
 
@@ -475,7 +529,9 @@ void setup() {
   apSsid = String(AP_SSID_PREFIX) + suffix;
 
   WiFi.setHostname(MDNS_NAME);
-  WiFi.softAP(apSsid.c_str(), apPass.c_str());
+  bool apOk = WiFi.softAP(apSsid.c_str(), apPass.c_str());
+  WiFi.setTxPower(WIFI_TX_POWER);
+  logf("Hotspot %s: %s\n", apSsid.c_str(), apOk ? "started" : "FAILED to start");
   connectStation();
   configTzTime(tzString.c_str(), "pool.ntp.org", "time.google.com");
 
@@ -495,7 +551,7 @@ void setup() {
   server.onNotFound(handleNotFound);
   server.begin();
 
-  Serial.printf("RelayTimer " FW_VERSION " ready: join \"%s\" (pass \"%s\") and open http://%s\n",
+  logf("RelayTimer " FW_VERSION " ready: join \"%s\" (pass \"%s\") and open http://%s\n",
                 apSsid.c_str(), apPass.c_str(), WiFi.softAPIP().toString().c_str());
   updateRelays();
 }

@@ -147,6 +147,16 @@ python3 tools/mock_server.py
 
 ## Troubleshooting
 
+- **No RelayTimer Wi-Fi after flashing:** a solid red LED is normally just
+  power. To see what the board is doing, open
+  https://espressif.github.io/esptool-js/, use the **Console** section
+  (baud 115200), connect, and press **RESET** on the board. RelayTimer prints
+  its version, the reason for the last reset, and whether the hotspot
+  started. Repeating boot messages mean it is restarting: "brownout" points
+  to a weak USB cable or port. If nothing prints, the flash didn't take:
+  click **Erase Flash**, then program `RelayTimer-esp32c3-full.bin` at `0x0`
+  again.
+
 - **Hotspot drops every few seconds:** the board is trying to join a home
   network it can't reach (Wi-Fi shares one radio and channel). Fix the name or
   password, or clear the network name in Settings and tap Connect.

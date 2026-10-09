@@ -5,7 +5,8 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
-FQBN="esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=default"
+# DIO flash mode boots on every ESP32-C3 flash chip (QIO does not).
+FQBN="esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=default,FlashMode=dio"
 BUILD="$HERE/build"
 DIST="$HERE/dist"
 
