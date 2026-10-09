@@ -10,7 +10,8 @@ static const char INDEX_HTML[] PROGMEM = R"rawliteral(<!doctype html>
 <meta name="theme-color" content="#d9eeff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>RelayTimer</title>
+<title>PClub Door Timer</title>
+<meta name="apple-mobile-web-app-title" content="PClub Door Timer">
 <style>
 :root{
   --bg1:#eaf6ff; --bg2:#cfe8ff; --ink:#0d2a47; --ink2:#4a6a8a; --ink3:#8aa5c0;
@@ -41,7 +42,7 @@ body.dirty .app{padding-bottom:calc(env(safe-area-inset-bottom) + 175px)}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{width:40px;height:40px;border-radius:13px;background:var(--grad);display:grid;place-items:center;box-shadow:0 8px 18px -6px rgba(47,140,255,.7)}
 .logo svg{width:22px;height:22px;color:#fff}
-.brand h1{font-size:20px;margin:0;letter-spacing:-.3px}
+.brand h1{font-size:20px;margin:0;letter-spacing:-.3px;line-height:1.15}
 .brand small{display:block;color:var(--ink2);font-size:12px;margin-top:1px}
 .clock{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.8);
   border-radius:16px;padding:7px 12px;text-align:right;box-shadow:var(--shadow);min-width:96px}
@@ -219,7 +220,7 @@ select.inp{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <header class="top">
     <div class="brand">
       <div class="logo"><svg><use href="#i-clock"/></svg></div>
-      <div><h1>RelayTimer</h1><small id="sub">7-day smart switch</small></div>
+      <div><h1>PClub Door Timer</h1><small id="sub">7-day smart switch</small></div>
     </div>
     <div class="clock"><b id="clk">--:--</b><span><i class="dot off" id="conn"></i><em id="clkday" style="font-style:normal">Connecting</em></span></div>
   </header>

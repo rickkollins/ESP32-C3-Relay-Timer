@@ -28,7 +28,7 @@
 #include <sys/time.h>
 #include "index_html.h"
 
-#define FW_VERSION "1.1.1"
+#define FW_VERSION "1.1.2"
 
 // ---------------------------------------------------------------- config ---
 // Defaults only: the relay GPIOs and polarity can be changed in the app under
