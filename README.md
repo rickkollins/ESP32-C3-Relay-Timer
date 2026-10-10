@@ -1,6 +1,8 @@
 # RelayTimer — 7-day Wi-Fi timer for an ESP32-C3 2-relay module
 
-Firmware that turns an ESP32-C3 dual-relay board into a weekly timer switch.
+Firmware that turns an ESP32-C3 dual-relay board into a weekly timer switch. Two relays for 
+independent control of the front and rear door. Up to 50 events per day, which is plenty
+for the number of meetings we have on the schedule. The web interface is called 'PClub"
 The board serves its own phone-friendly web app (light-blue, glassy, bottom tab
 bar), so any iPhone or Android phone can set it up in a browser — no app to
 install.
