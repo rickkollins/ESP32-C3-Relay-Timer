@@ -17,7 +17,7 @@ state = {
     "names": ["Front Door", "Back Door"],
     "modes": ["auto", "auto"],
     "tz": "EST5EDT,M3.2.0,M11.1.0",
-    "ssid": "", "pass": "", "apPass": "relay1234", "pins": [0, 1], "activeHigh": True,
+    "ssid": "", "pass": "", "apPass": "relay1234", "pins": [5, 6], "activeHigh": True,
     "relays": [
         [[[1080, 1410]] for _ in range(5)] + [[[1080, 60]], [[1080, 60]]],  # Fri/Sat overnight
         [[[360, 420], [1140, 1170]], [[360, 400]], [], [[360, 400]], [], [[360, 400]], [[480, 540]]],

@@ -65,7 +65,7 @@ board that already runs RelayTimer.
 
 Relay GPIOs vary between ESP32-C3 relay modules, so check the silkscreen or
 the seller's pin list, then pick them under **Settings → Hardware** in the app
-(default GPIO 0 and 1). To test, set a relay to **Always on** on the Home tab
+(default GPIO 5 for relay 1 and GPIO 6 for relay 2). To test, set a relay to **Always on** on the Home tab
 and listen for the click. If a relay is on when the app says off, change
 **Relay switches on when the pin is** to **LOW**. GPIO 11–17 (flash) and
 18/19 (USB) can't be chosen; GPIO 2, 8 and 9 are boot pins, so use them only

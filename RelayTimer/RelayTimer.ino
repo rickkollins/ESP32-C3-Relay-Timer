@@ -28,12 +28,12 @@
 #include <sys/time.h>
 #include "index_html.h"
 
-#define FW_VERSION "1.1.2"
+#define FW_VERSION "1.1.3"
 
 // ---------------------------------------------------------------- config ---
 // Defaults only: the relay GPIOs and polarity can be changed in the app under
 // Settings > Hardware, so a prebuilt .bin works with any ESP32-C3 relay board.
-static const uint8_t DEFAULT_RELAY_PINS[2] = {0, 1};
+static const uint8_t DEFAULT_RELAY_PINS[2] = {5, 6};  // Front Door, Back Door
 static const bool DEFAULT_ACTIVE_HIGH = true;   // false if relays click on LOW
 static const int STATUS_LED_PIN = -1;         // e.g. 8 for the on-board LED, -1 = none
 
