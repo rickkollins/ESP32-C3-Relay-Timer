@@ -16,7 +16,7 @@ MAX_SLOTS = 50
 state = {
     "names": ["Front Door", "Back Door"],
     "modes": ["auto", "auto"],
-    "tz": "EST5EDT,M3.2.0,M11.1.0",
+    "tz": "CST6CDT,M3.2.0,M11.1.0",
     "ssid": "", "pass": "", "apPass": "relay1234", "pins": [5, 6], "activeHigh": True,
     "relays": [
         [[[1080, 1410]] for _ in range(5)] + [[[1080, 60]], [[1080, 60]]],  # Fri/Sat overnight
@@ -46,6 +46,7 @@ def snapshot():
         relays.append({"name": state["names"][r], "mode": mode, "on": on})
     return {"timeValid": True, "epoch": int(time.time()), "wday": wday, "minute": minute,
             "second": t.tm_sec, "date": time.strftime("%Y-%m-%d", t), "relays": relays,
+            "tzAbbr": "CDT" if t.tm_isdst > 0 else "CST", "dst": t.tm_isdst > 0,
             "uptime": int(time.monotonic())}
 
 

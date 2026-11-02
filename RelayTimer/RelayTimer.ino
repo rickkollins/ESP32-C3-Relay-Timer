@@ -28,7 +28,7 @@
 #include <sys/time.h>
 #include "index_html.h"
 
-#define FW_VERSION "1.1.3"
+#define FW_VERSION "1.2.0"
 
 // ---------------------------------------------------------------- config ---
 // Defaults only: the relay GPIOs and polarity can be changed in the app under
@@ -40,7 +40,9 @@ static const int STATUS_LED_PIN = -1;         // e.g. 8 for the on-board LED, -1
 static const char *AP_SSID_PREFIX = "RelayTimer-";
 static const char *AP_DEFAULT_PASS = "relay1234";  // min. 8 characters
 static const char *MDNS_NAME = "relaytimer";
-static const char *DEFAULT_TZ = "EST5EDT,M3.2.0,M11.1.0";
+// US Central with daylight saving: CDT from the 2nd Sunday of March 02:00,
+// back to CST on the 1st Sunday of November 02:00.
+static const char *DEFAULT_TZ = "CST6CDT,M3.2.0,M11.1.0";
 // Many ESP32-C3 boards have a poorly matched antenna and their hotspot is
 // invisible at full power; 8.5 dBm is the usual fix and covers a house.
 static const wifi_power_t WIFI_TX_POWER = WIFI_POWER_8_5dBm;
@@ -301,6 +303,9 @@ static void handleState() {
     char buf[24];
     strftime(buf, sizeof(buf), "%Y-%m-%d", &t);
     doc["date"] = buf;
+    strftime(buf, sizeof(buf), "%Z", &t);
+    doc["tzAbbr"] = buf;            // e.g. CST or CDT
+    doc["dst"] = t.tm_isdst > 0;
   }
   JsonArray relays = doc["relays"].to<JsonArray>();
   for (uint8_t r = 0; r < NUM_RELAYS; r++) {

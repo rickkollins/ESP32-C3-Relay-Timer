@@ -286,6 +286,9 @@ select.inp{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     <div class="card">
       <label class="fld" style="margin-top:0"><span>Time zone</span><select class="inp" id="tz"></select></label>
       <label class="fld" id="tzCustomWrap" hidden><span>POSIX TZ string</span><input class="inp" id="tzCustom" placeholder="e.g. CET-1CEST,M3.5.0,M10.5.0/3"></label>
+      <label class="chk" id="dstWrap"><input type="checkbox" id="dst" checked><span class="box"><svg><use href="#i-check"/></svg></span>
+        <span class="grow"><b>Daylight saving time</b><span class="tiny" style="display:block" id="dstRule"></span></span></label>
+      <div class="kv" style="margin-top:8px"><span>Timer clock now</span><b id="dstNow">–</b></div>
       <div class="toolbar">
         <button class="btn ghost sm" onclick="detectTz()">Use phone's zone</button>
         <button class="btn ghost sm" onclick="syncTime()">Sync clock from phone</button>
@@ -657,14 +660,38 @@ function renderWeek() {
 }
 
 // ----- settings
-function fillTzSelect(cur) {
-  const known = TZS.some(t => t[1] === cur);
-  $('tz').innerHTML = TZS.map(t => `<option value="${esc(t[1])}">${esc(t[0])}</option>`).join('') + '<option value="custom">Custom…</option>';
-  $('tz').value = known ? cur : 'custom';
-  $('tzCustom').value = cur;
-  $('tzCustomWrap').hidden = known;
+// A POSIX TZ string is "STDoffset[DST[offset],start,end]"; the standard-time
+// part alone means "no daylight saving".
+const stdPart = tz => (tz.match(/^(<[^>]+>|[A-Za-z]{3,})[+-]?\d{1,2}(:\d{2})?/) || [tz])[0];
+const hasDst = tz => stdPart(tz) !== tz;
+const US_RULE = 'M3.2.0,M11.1.0';
+function dstRuleText(tz) {
+  if (!hasDst(tz)) return 'This zone has no daylight saving time.';
+  if (tz.endsWith(US_RULE)) return 'Clocks go forward 1 hour on the 2nd Sunday of March and back on the 1st Sunday of November, automatically.';
+  return "Follows this zone's daylight saving dates automatically.";
 }
-$('tz').onchange = () => { $('tzCustomWrap').hidden = $('tz').value !== 'custom'; };
+function updateDstUi() {
+  const v = $('tz').value, preset = v === 'custom' ? null : v;
+  $('tzCustomWrap').hidden = v !== 'custom';
+  $('dstWrap').hidden = !preset;
+  if (!preset) return;
+  $('dst').disabled = !hasDst(preset);
+  if (!hasDst(preset)) $('dst').checked = false;
+  $('dstRule').textContent = $('dst').checked || !hasDst(preset) ? dstRuleText(preset) : 'Off: the timer stays on standard time all year.';
+}
+function fillTzSelect(cur) {
+  $('tz').innerHTML = TZS.map(t => `<option value="${esc(t[1])}">${esc(t[0])}</option>`).join('') + '<option value="custom">Custom…</option>';
+  // A zone with its DST switched off (e.g. "CST6") wins over a preset that
+  // happens to be the same string (Mexico City), so the switch shows "off".
+  const noDst = !hasDst(cur) && TZS.find(t => hasDst(t[1]) && stdPart(t[1]) === cur);
+  const exact = !noDst && TZS.find(t => t[1] === cur);
+  $('tz').value = noDst ? noDst[1] : exact ? cur : 'custom';
+  $('dst').checked = !noDst;
+  $('tzCustom').value = cur;
+  updateDstUi();
+}
+$('tz').onchange = () => { $('dst').checked = true; updateDstUi(); };
+$('dst').onchange = updateDstUi;
 function renderSettings() {
   if (!settings) return;
   $('n0').value = settings.names[0]; $('n1').value = settings.names[1];
@@ -697,14 +724,15 @@ function saveHw() {
   postSettings({pins, activeHigh:$('acth').value === '1'}, 'Hardware saved');
 }
 function saveTz() {
-  const v = $('tz').value === 'custom' ? $('tzCustom').value.trim() : $('tz').value;
+  let v = $('tz').value === 'custom' ? $('tzCustom').value.trim() : $('tz').value;
+  if ($('tz').value !== 'custom' && !$('dst').checked) v = stdPart(v);
   if (!v) return toast('Enter a TZ string', true);
   postSettings({tz:v}, 'Time zone saved');
 }
 function detectTz() {
   const z = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const hit = TZS.find(t => t[2].includes(z));
-  if (hit) { $('tz').value = hit[1]; $('tzCustomWrap').hidden = true; toast(`Selected ${hit[0]} — tap Save`); }
+  if (hit) { $('tz').value = hit[1]; $('dst').checked = true; updateDstUi(); toast(`Selected ${hit[0]} — tap Save`); }
   else toast(`No preset for ${z}; use Custom`, true);
 }
 function saveWifi() {
@@ -751,7 +779,7 @@ $('nav').onclick = e => { const b = e.target.closest('button'); if (b) go(b.data
 function tick() {
   const n = devNow();
   $('conn').classList.toggle('off', !connected);
-  if (n) { $('clk').textContent = fmt(n.minute) + ':' + pad(n.second); $('clkday').textContent = DAYS[n.wday]; }
+  if (n) { $('clk').textContent = fmt(n.minute) + ':' + pad(n.second); $('clkday').textContent = DAYS[n.wday] + (st.tzAbbr ? ' · ' + st.tzAbbr : ''); }
   else { $('clk').textContent = '--:--'; $('clkday').textContent = connected ? 'Clock not set' : 'Offline'; }
   $('timeBanner').hidden = !st || st.timeValid;
   if (n && n.second === 0) renderAll();
@@ -764,6 +792,7 @@ function renderAll() {
     const u = st.uptime, d = Math.floor(u/86400), h = Math.floor(u%86400/3600), m = Math.floor(u%3600/60);
     $('uptime').textContent = (d ? d + 'd ' : '') + h + 'h ' + m + 'm';
     $('ddate').textContent = st.date || 'not set';
+    $('dstNow').textContent = !st.timeValid ? 'clock not set' : st.tzAbbr ? `${st.tzAbbr} (${st.dst ? 'daylight saving' : 'standard time'})` : '–';
   }
 }
 let autoSynced = false;

@@ -96,7 +96,9 @@ The Serial Monitor (115200 baud) prints the hotspot name and password.
    **http://192.168.4.1**.
 2. The board has no battery-backed clock, so the app sets its clock from your
    phone the first time it connects (you can also tap **Sync** at any time).
-3. Under **Settings → Time zone**, tap **Use phone's zone** and **Save**.
+3. The time zone defaults to **US Central** with daylight saving time on. To
+   change it, use **Settings → Time zone** (or **Use phone's zone**) and
+   **Save**.
 4. Build the schedule under **Schedule** and tap **Save**.
 5. *(Recommended)* Under **Settings → Home Wi-Fi**, scan, choose your network
    and tap **Connect**. The timer then:
@@ -112,8 +114,12 @@ The Serial Monitor (115200 baud) prints the hotspot name and password.
 
 ## How the schedule works
 
-- Days use the board's local time in the selected time zone (DST handled by
-  the POSIX TZ rule).
+- Days use the board's local time in the selected time zone.
+- **Daylight saving time** is automatic. For US Central the clock moves to
+  CDT at 2:00 AM on the 2nd Sunday of March and back to CST at 2:00 AM on the
+  1st Sunday of November, and schedules follow local time. Untick **Daylight
+  saving time** under Settings to stay on standard time all year. The app
+  shows CST or CDT next to the clock.
 - At any minute a relay in **Auto** is on if the minute falls inside any of
   that day's periods, or inside the overnight tail of the previous day's.
 - **Always on / Always off** ignore the schedule until you go back to
