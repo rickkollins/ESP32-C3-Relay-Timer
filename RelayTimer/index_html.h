@@ -153,11 +153,46 @@ select.inp{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .kv span{color:var(--ink2)}
 .kv b{font-weight:600;text-align:right;word-break:break-all}
 
+/* overview: calendar grid + day list */
+:root{--r2a:#8b6cff;--r2b:#c08cff}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--ink2);margin:12px 2px 2px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:6px;vertical-align:-1px;background:var(--grad)}
+.legend i.r1{background:linear-gradient(135deg,var(--r2a),var(--r2b))}
+.cal{display:grid;grid-template-columns:30px repeat(7,1fr);gap:0 4px}
+.cal .dh{text-align:center;font-size:11px;font-weight:700;color:var(--ink2);padding:6px 0;margin-bottom:6px;border-radius:10px;cursor:pointer}
+.cal .dh b{display:block;font-size:13px;color:var(--ink)}
+.cal .dh.today{background:var(--grad);color:rgba(255,255,255,.85)}
+.cal .dh.today b{color:#fff}
+.cal .hrs{position:relative;height:504px}
+.cal .hrs span{position:absolute;right:2px;transform:translateY(-50%);font-size:9.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.cal .col{position:relative;height:504px;border-radius:10px;cursor:pointer;
+  background:repeating-linear-gradient(180deg,rgba(47,140,255,.05) 0 calc(100%/24 - 1px),rgba(47,140,255,.12) calc(100%/24 - 1px) calc(100%/24))}
+.cal .col.today{background-color:rgba(47,140,255,.07);box-shadow:inset 0 0 0 1.5px rgba(47,140,255,.35)}
+.cal .blk{position:absolute;border-radius:5px;min-height:3px;background:var(--grad);box-shadow:0 2px 6px -2px rgba(47,140,255,.7);overflow:hidden}
+.cal .blk.r1{background:linear-gradient(180deg,var(--r2a),var(--r2b));box-shadow:0 2px 6px -2px rgba(139,108,255,.7)}
+.cal .blk em{position:absolute;top:2px;left:0;right:0;text-align:center;font-style:normal;font-size:8.5px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.cal .nowl{position:absolute;left:-3px;right:-3px;height:2px;background:var(--bad);border-radius:2px;z-index:2}
+.cal .nowl::before{content:"";position:absolute;left:-2px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.dayc .dhd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dayc .dhd h3{margin:0;font-size:17px}
+.badge{font-size:11px;font-weight:700;color:#fff;background:var(--grad);border-radius:8px;padding:2px 8px}
+.rrow{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.rrow .nm{flex:none;width:92px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;padding-top:4px}
+.rrow .nm i{width:9px;height:9px;border-radius:3px;background:var(--grad);flex:none}
+.rrow .nm i.r1{background:linear-gradient(135deg,var(--r2a),var(--r2b))}
+.chips{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.chip{font-size:13px;font-weight:600;background:var(--pri-soft);color:var(--ink);border-radius:9px;padding:4px 9px;font-variant-numeric:tabular-nums}
+.chip.r1{background:#efe9ff}
+.chip.live{box-shadow:inset 0 0 0 2px var(--pri)}
+.chip.r1.live{box-shadow:inset 0 0 0 2px var(--r2a)}
+.chip small{color:var(--ink3);font-weight:600}
+.offday{font-size:13px;color:var(--ink3);padding-top:4px}
+
 /* bottom nav */
 .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 14px);width:calc(100% - 32px);max-width:420px;
-  display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.78);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);
+  display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.78);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);
   border:1px solid rgba(255,255,255,.95);border-radius:24px;padding:7px;box-shadow:0 18px 40px -14px rgba(30,100,190,.45);z-index:20}
-.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;border-radius:17px;color:var(--ink3);font-size:11px;font-weight:600;transition:all .25s}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;border-radius:17px;color:var(--ink3);font-size:10.5px;font-weight:600;transition:all .25s}
 .nav button svg{width:22px;height:22px}
 .nav button.on{color:var(--pri);background:var(--pri-soft)}
 
@@ -213,6 +248,7 @@ select.inp{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
   <symbol id="i-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.8a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M9 9v12M15 9v12"/><rect x="10.5" y="12" width="3" height="5" rx="1" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
 </svg>
 
@@ -260,6 +296,12 @@ select.inp{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <!-- WEEK -->
   <section class="view" id="v-week">
     <div id="weekCards"></div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section class="view" id="v-cal">
+    <div class="seg" id="segCal"></div>
+    <div id="calBody"></div>
   </section>
 
   <!-- SETTINGS -->
@@ -337,6 +379,7 @@ select.inp{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
   <button class="on" data-v="home"><svg><use href="#i-home"/></svg>Home</button>
   <button data-v="sched"><svg><use href="#i-cal"/></svg>Schedule</button>
   <button data-v="week"><svg><use href="#i-week"/></svg>Week</button>
+  <button data-v="cal"><svg><use href="#i-grid"/></svg>Overview</button>
   <button data-v="set"><svg><use href="#i-gear"/></svg>Settings</button>
 </nav>
 
@@ -612,7 +655,7 @@ async function saveSchedule() {
       if (!res.ok) throw new Error(j.error || ('HTTP ' + res.status));
       saved[r][d] = parseDay(j.slots);
     }
-    weekCache = null; sched = clone(saved); changed(); renderSched(); renderWeek(); renderHome();
+    weekCache = null; sched = clone(saved); changed(); renderSched(); renderWeek(); renderCal(); renderHome();
     toast(`Saved ${todo.length} day${todo.length === 1 ? '' : 's'} to timer`);
   } catch (e) { weekCache = null; changed(); toast(e.message, true); }
 }
@@ -657,6 +700,59 @@ function renderWeek() {
       <div class="wk" style="margin-top:4px"><span></span><div class="ticks" style="margin:0"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
     </div>`).join('') + '<div class="tiny" style="text-align:center">Tap a day to edit it.</div>';
   $('weekCards').querySelectorAll('.tl[data-d]').forEach(el => el.onclick = () => { curRelay = +el.dataset.r; curDay = +el.dataset.d; go('sched'); });
+}
+
+// ----- overview: the saved schedule as a week calendar or a day-by-day list
+let calMode = 0;   // 0 = calendar grid, 1 = day list
+const relayNames = () => st ? st.relays.map(r => r.name) : ['Front Door','Back Door'];
+function renderCal() {
+  if (!saved) return;
+  seg($('segCal'), ['Calendar','Day by day'], calMode, i => { calMode = i; renderCal(); });
+  const names = relayNames(), n = devNow();
+  const legend = `<div class="legend">${names.map((nm,r) => `<span><i class="r${r}"></i>${esc(nm)}</span>`).join('')}</div>`;
+  if (calMode === 0) {
+    const hours = Array.from({length:9}, (_,i) => i*3).map(h => `<span style="top:${h/24*100}%">${h ? pad(h) : ''}</span>`).join('') + '<span style="top:100%">24</span>';
+    const head = '<div></div>' + ORDER.map(d => `<div class="dh ${n && n.wday === d ? 'today' : ''}" data-d="${d}"><b>${DAYS[d].slice(0,3)}</b></div>`).join('');
+    const cols = ORDER.map(d => {
+      let h = '';
+      names.forEach((_, r) => {
+        const left = r ? 'calc(50% + 1px)' : '1px';
+        for (const [a,b] of segments(r, d, saved)) {
+          const tall = (b - a) >= 75;
+          h += `<div class="blk r${r}" title="${esc(names[r])} ${fmt(a)}–${fmt(b % 1440)}" style="top:${a/14.4}%;height:${(b-a)/14.4}%;left:${left};width:calc(50% - 2px)">${tall ? `<em>${Math.floor(a/60)}</em>` : ''}</div>`;
+        }
+      });
+      if (n && n.wday === d) h += `<div class="nowl" style="top:${n.minute/14.4}%"></div>`;
+      return `<div class="col ${n && n.wday === d ? 'today' : ''}" data-d="${d}">${h}</div>`;
+    }).join('');
+    $('calBody').innerHTML = `<div class="card" style="margin-top:12px;padding:14px 10px 14px 6px">
+      <div class="cal">${head}<div class="hrs">${hours}</div>${cols}</div>${legend}</div>
+      <div class="tiny" style="text-align:center">Numbers are start hours. Left lane: ${esc(names[0])} · right lane: ${esc(names[1])}. Tap a day to edit it; see exact times under Day by day.</div>`;
+  } else {
+    $('calBody').innerHTML = legend + ORDER.map(d => {
+      const isToday = n && n.wday === d;
+      const rows = names.map((nm, r) => {
+        const list = saved[r][d];
+        const total = segments(r, d, saved).reduce((x,[a,b]) => x + b - a, 0);
+        const tail = saved[r][(d+6)%7].filter(([a,b]) => a > b && b > 0);
+        const chips = tail.map(([a,b]) => `<span class="chip r${r}${isToday && n.minute < b ? ' live' : ''}">00:00–${fmt(b)} <small>from ${DAYS[(d+6)%7].slice(0,3)}</small></span>`)
+          .concat(list.map(([a,b]) => {
+            const live = isToday && (a < b ? n.minute >= a && n.minute < b : n.minute >= a);
+            return `<span class="chip r${r}${live ? ' live' : ''}">${fmt(a)}–${fmt(b)}${a > b ? ' <small>overnight</small>' : ''}</span>`;
+          })).join('');
+        return `<div class="rrow"><div class="nm"><i class="r${r}"></i>${esc(nm)}</div>
+          ${chips ? `<div class="chips">${chips}</div>` : '<div class="offday">Off all day</div>'}
+          ${total ? `<div class="tiny" style="flex:none;padding-top:5px">${Math.floor(total/60)}h${pad(total%60)}</div>` : ''}</div>`;
+      }).join('');
+      return `<div class="card dayc" data-d="${d}" style="cursor:pointer"><div class="dhd"><h3>${DAYS[d]}</h3>${isToday ? '<span class="badge">Today</span>' : ''}</div>${rows}</div>`;
+    }).join('') + '<div class="tiny" style="text-align:center">Outlined times are on right now. Tap a day to edit it.</div>';
+  }
+  $('calBody').onclick = e => {
+    const el = e.target.closest('[data-d]'); if (!el) return;
+    curDay = +el.dataset.d;
+    const blk = e.target.closest('.blk'); if (blk) curRelay = blk.classList.contains('r1') ? 1 : 0;
+    go('sched');
+  };
 }
 
 // ----- settings
@@ -771,6 +867,7 @@ function go(v) {
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   if (v === 'sched') renderSched();
   if (v === 'week') renderWeek();
+  if (v === 'cal') renderCal();
   if (v === 'set') loadSettings();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -779,7 +876,7 @@ $('nav').onclick = e => { const b = e.target.closest('button'); if (b) go(b.data
 function tick() {
   const n = devNow();
   $('conn').classList.toggle('off', !connected);
-  if (n) { $('clk').textContent = fmt(n.minute) + ':' + pad(n.second); $('clkday').textContent = DAYS[n.wday] + (st.tzAbbr ? ' · ' + st.tzAbbr : ''); }
+  if (n) { $('clk').textContent = fmt(n.minute) + ':' + pad(n.second); $('clkday').textContent = st.tzAbbr ? DAYS[n.wday].slice(0,3) + ' · ' + st.tzAbbr : DAYS[n.wday]; }
   else { $('clk').textContent = '--:--'; $('clkday').textContent = connected ? 'Clock not set' : 'Offline'; }
   $('timeBanner').hidden = !st || st.timeValid;
   if (n && n.second === 0) renderAll();
@@ -787,6 +884,7 @@ function tick() {
 function renderAll() {
   renderHome();
   if ($('v-week').classList.contains('on')) renderWeek();
+  if ($('v-cal').classList.contains('on')) renderCal();
   if ($('v-sched').classList.contains('on')) $('dayTl').innerHTML = tlHtml(curRelay, curDay, sched, true);
   if (st) {
     const u = st.uptime, d = Math.floor(u/86400), h = Math.floor(u%86400/3600), m = Math.floor(u%3600/60);

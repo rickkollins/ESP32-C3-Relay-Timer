@@ -9,7 +9,7 @@ install.
 
 <p>
 <img src="docs/home.png" width="200"> <img src="docs/sched.png" width="200">
-<img src="docs/week.png" width="200"> <img src="docs/settings.png" width="200">
+<img src="docs/week.png" width="200"> <img src="docs/overview.png" width="200"> <img src="docs/settings.png" width="200">
 </p>
 
 ## Features
@@ -26,6 +26,12 @@ install.
   a day with a pattern such as "on 5 min every 30 min, 08:00–20:00". Copy a day to weekdays / weekend / all days (and optionally to the
   other relay). Changes are saved to the board only when you tap **Save**.
 - **Week:** an at-a-glance 7-day chart per relay; tap a day to edit it.
+- **Overview:** the saved schedule day by day. **Calendar** draws the whole
+  week as a grid with hours down the side and each door in its own color and
+  lane, with a red line at the current time. **Day by day** lists every on/off
+  period for each door, including overnight carry-overs from the day before,
+  outlines the periods that are on right now, and totals the on-time. Tap a
+  day to edit it.
 - **Settings:** relay names, time zone, clock sync from your phone, home Wi-Fi
   (with network scan), hotspot password.
 - Everything is stored in flash and survives power cuts (the schedule in
